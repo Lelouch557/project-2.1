@@ -52,7 +52,7 @@ class Plot:
 
 plot = Plot()
 root = Tk()
-root.title('SunScreen by HanzeTech')
+root.title('SunShade by HanzeTech')
 
 canvas = Canvas(root, width=1200, height=600, bg='white')  # 0,0 is top left corner
 canvas.pack(expand=YES, fill=BOTH)
