@@ -1,6 +1,7 @@
 from tkinter import *
 from random import randint
 import time
+from tkinter import simpledialog
 
 
 class Plot:
