@@ -1,3 +1,4 @@
+from string import *
 from tkinter import *
 from random import randint
 from tkinter.ttk import Notebook
@@ -67,15 +68,18 @@ def open_settings():
 
 def set_length(window, val):
     global max_length
+    for char in val:
+        if char in ascii_letters:
+            return windll.user32.MessageBoxW(0, "Please enter a valid length", "Invalid length", 0)
     if val == "":
-        windll.user32.MessageBoxW(0, "Please enter a length.", "Length field is empty", 0)
+        return windll.user32.MessageBoxW(0, "Please enter a length.", "Length field is empty", 0)
     else:
         val = int(val)
         if val > 0:
             max_length = val
             window.destroy()
         else:
-            windll.user32.MessageBoxW(0, "Please enter a positive length.", "Invalid length", 0)
+            return windll.user32.MessageBoxW(0, "Please enter a positive length.", "Invalid length", 0)
 
 plot = Plot()
 root = Tk()
