@@ -1,5 +1,7 @@
 from tkinter import *
 from random import randint
+from tkinter.ttk import Notebook
+from ctypes import *
 
 class Plot:
 
@@ -50,15 +52,39 @@ class Plot:
         else:
             self.paused = True
 
+max_length = 150
+def open_settings():
+    settings = Tk()
+    settings.geometry("300x100")
+    max_label = Label(settings, text="Max length of sunshade:", fg="black", bg="white")
+    max_label.pack()
+    max_length_entry = Entry(settings, width=20)
+    max_length_entry.pack()
+    print(max_length)
+    Button(settings, text="OK", command=lambda:set_length(settings, int(max_length_entry.get()))).pack()
+
+
+def set_length(window, val):
+    global max_length
+    if val > 0:
+        max_length = val
+        window.destroy()
+    else:
+        windll.user32.MessageBoxW(0, "Please enter a positive length.", "Invalid length", 0)
+
 plot = Plot()
 root = Tk()
+root.geometry("1350x700")
 root.title('SunShade by HanzeTech')
 
-canvas = Canvas(root, width=1200, height=600, bg='white')  # 0,0 is top left corner
+general_tab = Frame(Notebook(root))
+canvas = Canvas(root, width=1600, height=600, bg='white')  # 0,0 is top left corner
 canvas.pack(expand=YES, fill=BOTH)
 
-Button(root, text='Quit', command=root.quit).pack()
-Button(root, text='Pause', command=plot.pause).pack()
+pause_button = Button(canvas, text='Pause', command=plot.pause)
+pause_button.place(x=1237, y=350)
+settings = Button(canvas, text="Settings...", command=open_settings)
+settings.place(x=1225, y=400)
 
 canvas.create_line(50, 550, 1150, 550, width=2)  # x-axis
 canvas.create_line(50, 550, 50, 50, width=2)  # y-axis
@@ -80,22 +106,5 @@ for i in range(11):
 ylabel = Label(canvas, text="Value", fg="black", bg="white")
 ylabel.pack()
 canvas.create_window(25, 25, window=ylabel)
-max_label = Label(canvas, text="Max value: ", fg="black", bg="white")
-max_label.pack()
-canvas.create_window(600, 580, window=max_label)
-maximum = Entry(canvas, width=20)
-maximum.insert(0, '100')
-min_label = Label(canvas, text="Min value: ", fg="black", bg="white")
-min_label.pack()
-canvas.create_window(800, 580, window=min_label)
-minimum = Entry(root, width=20)
-minimum.insert(0,'0')
-setButton = Button(root, text="Set", command=lambda : plot.setEntry(int(minimum.get()), int(maximum.get())))
-minimum.pack()
-canvas.create_window(900, 580, window=minimum)
-maximum.pack()
-canvas.create_window(700, 580, window=maximum)
-setButton.pack()
-canvas.create_window(1000, 580, window=setButton)
 canvas.after(300, plot.step, canvas)
 root.mainloop()
