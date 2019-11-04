@@ -2,6 +2,7 @@ from tkinter import *
 from random import randint
 from tkinter.ttk import Notebook
 from ctypes import *
+from serial import *
 
 class Plot:
 
@@ -61,26 +62,31 @@ def open_settings():
     max_length_entry = Entry(settings, width=20)
     max_length_entry.pack()
     print(max_length)
-    Button(settings, text="OK", command=lambda:set_length(settings, int(max_length_entry.get()))).pack()
+    Button(settings, text="OK", command=lambda:set_length(settings, max_length_entry.get())).pack()
 
 
 def set_length(window, val):
     global max_length
-    if val > 0:
-        max_length = val
-        window.destroy()
+    if val == "":
+        windll.user32.MessageBoxW(0, "Please enter a length.", "Length field is empty", 0)
     else:
-        windll.user32.MessageBoxW(0, "Please enter a positive length.", "Invalid length", 0)
+        val = int(val)
+        if val > 0:
+            max_length = val
+            window.destroy()
+        else:
+            windll.user32.MessageBoxW(0, "Please enter a positive length.", "Invalid length", 0)
 
 plot = Plot()
 root = Tk()
 root.geometry("1350x700")
 root.title('SunShade by HanzeTech')
 
-general_tab = Frame(Notebook(root))
-canvas = Canvas(root, width=1600, height=600, bg='white')  # 0,0 is top left corner
+tab_master = Notebook(root)
+general_tab = Frame(tab_master)
+tab_master.add(general_tab, text="General")
+canvas = Canvas(general_tab, width=1600, height=600, bg='white')  # 0,0 is top left corner
 canvas.pack(expand=YES, fill=BOTH)
-
 pause_button = Button(canvas, text='Pause', command=plot.pause)
 pause_button.place(x=1237, y=350)
 settings = Button(canvas, text="Settings...", command=open_settings)
@@ -107,4 +113,5 @@ ylabel = Label(canvas, text="Value", fg="black", bg="white")
 ylabel.pack()
 canvas.create_window(25, 25, window=ylabel)
 canvas.after(300, plot.step, canvas)
+tab_master.pack(expand=1, fill="both")
 root.mainloop()
