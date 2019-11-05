@@ -1,24 +1,31 @@
 # deze code komt van https://www.python-course.eu/tkinter_entry_widgets.php
 import tkinter as tk
+from ctypes import windll
 
 list = []
 
-
 def show_entry_fields():
-    list.append(e1.get())
-    list.append(e2.get())
-    list.append(e3.get())
-    print(list)
+    if e1 == type(str):
+        if e2 == type(str):
+            if e3 == type(int):
+                list.append(e1.get())
+                list.append(e2.get())
+                list.append(e3.get())
+                print(list)
+            else: windll.user32.MessageBoxW(0, "COM can oly contain a number", 0)
+        else: windll.user32.MessageBoxW(0, "position of the shuttor can only contain letters", 0)
+    else: windll.user32.MessageBoxW(0, "name can only contain letters", 0)
+
 
 
 addShutter = tk.Tk()
 
 tk.Label(addShutter,
-         text="First Name").grid(row=0)
+         text="add name shutter").grid(row=0)
 tk.Label(addShutter,
-         text="Last Name").grid(row=1)
+         text="add position shutter").grid(row=1)
 tk.Label(addShutter,
-         text="Middel Name").grid(row=2)
+         text="Fill in the COM number \n for example: 5").grid(row=2)
 
 e1 = tk.Entry(addShutter)
 e2 = tk.Entry(addShutter)
