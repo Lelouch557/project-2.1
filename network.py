@@ -6,8 +6,14 @@ class network:
         self.shutterlist = list()
 
     def add_shutter(self, name):
-        self.shutterlist += name
+        self.shutterlist.append(name)
 
     def printlist(self):
-        print(self.shutterlist)
+        for shutter in self.shutterlist:
+            print(shutter.get_name())
 
+    def get_shutter_list(self):
+        return self.shutterlist
+
+    def remove_shutter(self, name):
+        self.shutterlist.remove(name)

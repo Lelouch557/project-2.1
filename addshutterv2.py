@@ -46,14 +46,18 @@ def addShutter(window, name, position, com):
         return windll.user32.MessageBoxW(0, "Please enter a number.", "COM field is empty", 0)
     else:
         if int(com) > 0:
-            shutter.shutter(name, position, com)
-            n.add_shutter(name)
+            for shutter in n.get_shutter_list():
+                if name == shutter.get_name():
+                    n.remove_shutter(shutter.get_name())
+                if com == shutter.get_com():
+                    return windll.user32.MessageBoxW(0, "This COM port is already in use please use a diffrent one", "COM field already in use", 0)
+            n.add_shutter(shutter.shutter(name, position, com))
             n.printlist()
             window.destroy()
         else:
             return windll.user32.MessageBoxW(0, "Please enter a positive number in COM.", "Invalid length", 0)
 
 
-settings = Button(root, text="Settings...", command=addShutterSettings())
+settings = Button(root, text="Settings...", command=lambda: addShutterSettings())
 settings.place(x=1225, y=400)
 root.mainloop()
