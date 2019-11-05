@@ -21,3 +21,10 @@ class shutter:
 
     def get_com(self):
         return self.com
+
+d = shutter('dave', 'left', 5)
+
+print(d.get_com())
+print(d.get_name())
+d.set_name('steve')
+print(d.get_name())
