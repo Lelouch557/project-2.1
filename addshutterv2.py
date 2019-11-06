@@ -10,6 +10,7 @@ n = network.network()
 def addShutterSettings():
     shutter = Tk()
     shutter.geometry("500x300")
+    shutter.title("Add shutter")
     shutter_name = Label(shutter, text="shutter name")
     shutter_position = Label(shutter, text="description of the shutter position")
     shutter_com = Label(shutter, text="enter the number of the COM port")

@@ -10,6 +10,7 @@ n = network.network()
 def removeShutter():
     shutter = Tk()
     shutter.geometry("500x300")
+    shutter.title("Remove shutter")
     shutter_name = Label(shutter, text="shutter name")
     shutter_com = Label(shutter, text="enter the number of the COM port")
     shutter_name_entry = Entry(shutter)
