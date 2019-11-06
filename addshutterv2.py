@@ -46,11 +46,11 @@ def addShutter(window, name, position, com):
         return windll.user32.MessageBoxW(0, "Please enter a number.", "COM field is empty", 0)
     else:
         if int(com) > 0:
-            for shutter in n.get_shutter_list():
-                if name == shutter.get_name():
-                    n.remove_shutter(shutter.get_name())
-                if com == shutter.get_com():
-                    return windll.user32.MessageBoxW(0, "This COM port is already in use please use a diffrent one", "COM field already in use", 0)
+            for shut in n.get_shutter_list():
+                if name == shut.get_name():
+                    return windll.user32.MessageBoxW(0, "This Name is already in use please use a diffrent one", "Name already in use", 0)
+                if com == shut.get_com():
+                    return windll.user32.MessageBoxW(0, "This COM port is already in use please use a diffrent one", "COM already in use", 0)
             n.add_shutter(shutter.shutter(name, position, com))
             n.printlist()
             window.destroy()

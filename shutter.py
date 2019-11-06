@@ -1,4 +1,3 @@
-import network
 class shutter:
     def __init__(self, name, position, com):
         self.name = name
