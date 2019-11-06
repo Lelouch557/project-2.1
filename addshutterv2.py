@@ -48,7 +48,7 @@ def addShutter(window, name, position, com):
         if int(com) > 0:
             for shut in n.get_shutter_list():
                 if name == shut.get_name():
-                    return windll.user32.MessageBoxW(0, "This Name is already in use please use a diffrent one", "Name already in use", 0)
+                    return windll.user32.MessageBoxW(0, "This name is already in use please use a diffrent one", "Name already in use", 0)
                 if com == shut.get_com():
                     return windll.user32.MessageBoxW(0, "This COM port is already in use please use a diffrent one", "COM already in use", 0)
             n.add_shutter(shutter.shutter(name, position, com))
@@ -61,3 +61,4 @@ def addShutter(window, name, position, com):
 settings = Button(root, text="Settings...", command=lambda: addShutterSettings())
 settings.place(x=1225, y=400)
 root.mainloop()
+#push main
