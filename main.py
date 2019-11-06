@@ -145,5 +145,4 @@ canvas.create_window(25, 25, window=ylabel)
 canvas.after(300, temp_plot.step, canvas)
 canvas.after(300, bright_plot.step, canvas)
 tab_master.pack(expand=1, fill="both")
-print("commit") # pls remove this
 root.mainloop()
