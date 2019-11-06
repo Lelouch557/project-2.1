@@ -11,15 +11,11 @@ def addShutterSettings():
     shutter = Tk()
     shutter.geometry("500x300")
     shutter_name = Label(shutter, text="shutter name")
-    shutter_position = Label(shutter, text="description of the shutter position")
     shutter_com = Label(shutter, text="enter the number of the COM port")
     shutter_name_entry = Entry(shutter)
-    shutter_position_entry = Entry(shutter)
     shutter_com_entry = Entry(shutter)
     shutter_name.pack()
     shutter_name_entry.pack()
-    shutter_position.pack()
-    shutter_position_entry.pack()
     shutter_com.pack()
     shutter_com_entry.pack()
     Button(shutter, text="add shutter",
@@ -31,19 +27,11 @@ def addShutter(window, name, position, com):
     for char in name:
         if char not in ascii_letters:
             return windll.user32.MessageBoxW(0, "Please only use letters in the name", "Invalid name", 0)
-    if name == "":
-        return windll.user32.MessageBoxW(0, "Please enter a name.", "name field is empty", 0)
-    for char in position:
-        if char not in ascii_letters and char not in punctuation and char not in whitespace:
-            return windll.user32.MessageBoxW(0, "Please Only use letters and punctuation marks  for the position",
-                                             "Invalid position", 0)
-    if position == "":
-        return windll.user32.MessageBoxW(0, "Please enter a position.", "position field is empty", 0)
     for char in com:
         if char in ascii_letters or char in whitespace:
             return windll.user32.MessageBoxW(0, "Please enter a valid number in COM", "Invalid COM", 0)
-    if com == "":
-        return windll.user32.MessageBoxW(0, "Please enter a number.", "COM field is empty", 0)
+    if com == "" and name == "":
+        return windll.user32.MessageBoxW(0, "Please enter a COM or name", "COM and name field is empty", 0)
     else:
         if int(com) > 0:
             for shut in n.get_shutter_list():
@@ -61,4 +49,3 @@ def addShutter(window, name, position, com):
 settings = Button(root, text="Settings...", command=lambda: addShutterSettings())
 settings.place(x=1225, y=400)
 root.mainloop()
-#push main
