@@ -19,6 +19,9 @@ class Plot:
     def step(self, canvas):
         pass
 
+    def reset_plot(self, canvas):
+        pass
+
 class TemperaturePlot(Plot):
 
     def __init__(self, color):
@@ -27,10 +30,7 @@ class TemperaturePlot(Plot):
     def step(self, canvas):
         if self.set:
             if self.s == 23:
-                # new frame
-                self.s = 1
-                self.x2 = 50
-                canvas.delete('temp1')  # only delete items tagged as temp
+                self.reset_plot(canvas)
             x1 = self.x2
             y1 = self.y2
             self.x2 = 50 + self.s * 50
@@ -38,10 +38,13 @@ class TemperaturePlot(Plot):
             canvas.create_line(x1, y1, self.x2, self.y2, fill=self.color, tags='temp1')
             self.s += 1
         else:
-            canvas.delete('temp1')
-            self.s = 1
-            self.x2 = 50
+            self.reset_plot(canvas)
         canvas.after(300, self.step, canvas)
+
+    def reset_plot(self, canvas):
+        self.s = 1
+        self.x2 = 50
+        canvas.delete('temp1')
 
 class BrightnessPlot(Plot):
 
@@ -51,10 +54,7 @@ class BrightnessPlot(Plot):
     def step(self, canvas):
         if self.set:
             if self.s == 23:
-                # new frame
-                self.s = 1
-                self.x2 = 50
-                canvas.delete('temp2')  # only delete items tagged as temp
+                self.reset_plot(canvas)
             x1 = self.x2
             y1 = self.y2
             self.x2 = 50 + self.s * 50
@@ -62,10 +62,13 @@ class BrightnessPlot(Plot):
             canvas.create_line(x1, y1, self.x2, self.y2, fill=self.color, tags='temp2')
             self.s += 1
         else:
-            canvas.delete('temp2')
-            self.s = 1
-            self.x2 = 50
+            self.reset_plot(canvas)
         canvas.after(300, self.step, canvas)
+
+    def reset_plot(self, canvas):
+        self.s = 1
+        self.x2 = 50
+        canvas.delete('temp2')
 
 max_length = 150
 programmed_length = 150
@@ -84,18 +87,19 @@ def open_settings():
 def set_length(window, val):
     global max_length, programmed_length
     for char in val:
-        if char in ascii_letters or char in punctuation:
+        if char in ascii_letters or char in punctuation or char in whitespace:
             return windll.user32.MessageBoxW(0, "Please enter a valid length", "Invalid length", 0)
     if val == "":
         return windll.user32.MessageBoxW(0, "Please enter a length.", "Length field is empty", 0)
     else:
         val = int(val)
-        if val > 0 and val <= programmed_length:
+        if val <= 0:
+            return windll.user32.MessageBoxW(0, "Please enter a positive length.", "Invalid length", 0)
+        elif val >= programmed_length:
+            return windll.user32.MessageBoxW(0, "The maximum length cannot be set higher than %d." % programmed_length, "Invalid length", 0)
+        else:
             max_length = val
             window.destroy()
-        else:
-            return windll.user32.MessageBoxW(0, "Please enter a positive length.", "Invalid length", 0)
-
 
 def show_plot(plot1, plot2):
     temp_plot.set = plot1
