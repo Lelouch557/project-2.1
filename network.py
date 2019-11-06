@@ -17,6 +17,18 @@ class network:
     def get_shutter_list(self):
         return self.shutterlist
 
+    def get_shutter_com_list(self):
+        com_list = []
+        for shut in self.shutterlist:
+            com_list.append(shut.get_com())
+        return com_list
+
+    def get_shutter_name_list(self):
+        name_list = []
+        for shut in self.shutterlist:
+            name_list.append(shut.get_name())
+        return name_list
+
     def remove_shutter(self, name):
         self.shutterlist.remove(name)
 
