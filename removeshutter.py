@@ -57,5 +57,6 @@ settings.place(x=1225, y=400)
 # n.add_shutter(shutter.shutter('a', 'b', 5))
 # n.add_shutter(shutter.shutter('c', 'b', 6))
 # n.add_shutter(shutter.shutter('g', 'b', 7))
+# n.add_shutter(shutter.shutter('f', 'b', 8))
 root.mainloop()
 
