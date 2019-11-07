@@ -785,11 +785,11 @@ END GROUP
  *(.debug_frame)
  .debug_frame   0x00000000      0x220 main.o
 
-.debug_str      0x00000000      0x527
+.debug_str      0x00000000      0x51e
  *(.debug_str)
  .debug_str     0x00000000      0x208 C:/Program Files (x86)/Atmel/Studio/7.0/Packs/atmel/ATmega_DFP/1.2.209/gcc/dev/atmega328p/avr5/crtatmega328p.o
- .debug_str     0x00000208      0x31f main.o
-                                0x376 (size before relaxing)
+ .debug_str     0x00000208      0x316 main.o
+                                0x36d (size before relaxing)
 
 .debug_loc      0x00000000      0x475
  *(.debug_loc)
@@ -819,5 +819,5 @@ END GROUP
 
 .debug_macro
  *(.debug_macro)
-OUTPUT(project-2.1.elf elf32-avr)
+OUTPUT(assembly.elf elf32-avr)
 LOAD linker stubs
