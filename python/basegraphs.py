@@ -2,7 +2,7 @@ from tkinter import *
 from random import randint
 import time
 from tkinter import simpledialog
-
+#deze code wordt niet gebruikt
 
 class Plot:
     def __init__(self):

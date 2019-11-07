@@ -2,7 +2,7 @@
 from tkinter import *
 
 from tkinter import messagebox
-
+#this code is not in use
 top = Tk()
 top.geometry("100x100")
 def hello():
