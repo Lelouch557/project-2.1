@@ -189,7 +189,6 @@ int main() {
 			
 			int v = ((voltage - 0.5) * 100)/ 10;
 			showNumber(v);
-			ser_writeln("");
 			showNumber(ADCvalue * 5.0);
 		}
 		
@@ -212,7 +211,6 @@ int main() {
 			up();
 		}
 		
-		ser_writeln("");
 		ser_writeln("OK");
 	}
 }
