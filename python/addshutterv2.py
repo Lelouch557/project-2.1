@@ -1,8 +1,7 @@
-import shutter
-import network
 from string import *
 from tkinter import *
 from ctypes import windll
+from python import network, shutter
 
 root = Tk()
 n = network.network()
