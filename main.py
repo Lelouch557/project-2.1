@@ -1,5 +1,9 @@
 from tkinter.ttk import Notebook
+from addshutterv2 import *
 from random import randint
+from string import *
+from tkinter import *
+from ctypes import windll
 from serial import *
 
 slave_state = True;
