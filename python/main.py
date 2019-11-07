@@ -9,39 +9,67 @@ from serial import *
 slave_state = True;
 class Plot:
 
-    def __init__(self, color, tag):
-        self.temps = []
-        self.bright = []
-        self.s = 1
+    def __init__(self, tag):
+        self.tempd = [10,23,44,12,42,12,2,34,23,24,54,76,45,13,44,68,80,35,34,56,68,79,45,24,45,78,8,68,46,54,45]
+        self.brightd = []
+        self.s = 0
         self.max = 100
         self.min = 0
         self.x2 = 50
-        self.y2 = 550 - 5*randint(self.min, self.max)
+        self.y2 = 550 - 5*90
         self.set = True
-        self.color = color
+        self.tl = True # termperature of brightness. True == temperature
+        self.color = 'red'
         self.tag = tag
 
     def reset_plot(self, canvas):
-        self.s = 1
+        self.s = 0
         self.x2 = 50
         canvas.delete(self.tag)
 
     def main(self, canvas):
-        self.graph()
+        self.temp()
+        self.bright()
+        self.reset_plot(canvas)
+        if self.tl:
+            for i in range(len(self.tempd) - 1 ):
+                if i < 23:
+                    self.graph(self.tempd)
+        else:
+            for i in range(len(self.brightd) - 1 ):
+                if i < 23:
+                    self.graph(self.brightd)
+        self.s=0;
         canvas.after(300, self.main, canvas)
 
-    def graph(self):
-        if self.set:
-            if self.s == 23:
-                self.reset_plot(canvas)
-            x1 = self.x2
-            y1 = self.y2
-            self.x2 = 50 + self.s * 50
-            self.y2 = 550 - 5 * randint(self.min, self.max)
-            canvas.create_line(x1, y1, self.x2, self.y2, fill=self.color, tags=self.tag)
-            self.s += 1
+    def temp(self):
+        self.tempd.append(randint(0, 100))
+
+    def bright(self):
+        self.brightd.append(randint(0,100))
+
+    def change_slave_state(self, bool):
+        self.tl = bool;
+        if(self.tl):
+            self.color = "yellow"
         else:
-            self.reset_plot(canvas)
+            self.color = "red"
+
+    def graph(self, dataset):
+        i = 0
+        if(len(dataset) < 23):
+            i = self.s
+        else:
+            i = len(dataset) - (23 - self.s)
+        x1 = self.x2
+        y1 = self.y2
+        self.x2 = 50 + self.s* 50
+        self.y2 = 550 - 5 * dataset[i]
+        print('i ' +str(i))
+        print('len ' +str(len(dataset)))
+        print('s ' +str(self.s))
+        canvas.create_line(x1, y1, self.x2, self.y2, fill=self.color, tags=self.tag)
+        self.s += 1
 
 
 max_length = 150
@@ -87,14 +115,9 @@ def set_length(window, val):
             max_length = val
             window.destroy()
 
-
-def show_plot(plot1, plot2):
-    temp_plot.set = plot1
-    bright_plot.set = plot2
-
-
-def change_slave_state(button):
+def change_slave_state(button, temp):
     global slave_state
+    temp.change_slave_state(slave_state)
     if(slave_state):
         slave_state = False
         button.config(bg="black", foreground="white", text="Manual")
@@ -103,6 +126,8 @@ def change_slave_state(button):
         button.config(bg="lightgray", foreground="black", text="Automatic")
     print(slave_state)
 
+
+temp_plot = Plot('temp1')
 
 root = Tk()
 root.geometry("1200x800")
@@ -125,7 +150,7 @@ Button(canvas, text="Low").place(x=650, y=650)
 temp_button = Button(canvas, text="Show Temperature", command=lambda: show_plot(True, False)).place(x=400, y=600)
 bright_button = Button(canvas, text="Show Brightness", command=lambda: show_plot(False, True)).place(x=600, y=600)
 manual_button = Button(canvas, text="Automatic")
-manual_button.config(command=lambda: change_slave_state(manual_button))
+manual_button.config(command=lambda: change_slave_state(manual_button,temp_plot))
 manual_button.place(x=400, y=650)
 
 # x-axis
@@ -146,10 +171,6 @@ ylabel.pack()
 canvas.create_window(25, 25, window=ylabel)
 tab_master.pack(expand=1, fill="both")
 
-temp_plot = Plot('blue', 'temp1')
-bright_plot = Plot('red', 'temp2')
-show_plot(True, False)
 canvas.after(300, temp_plot.main, canvas)
-canvas.after(300, bright_plot.main, canvas)
 
 root.mainloop()
