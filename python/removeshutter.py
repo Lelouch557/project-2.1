@@ -1,7 +1,7 @@
 from string import *
 from tkinter import *
 from ctypes import windll
-from python import network
+from python import network, shutter
 
 root = Tk()
 n = network.network()
@@ -47,15 +47,17 @@ def removeShutterProces(window, rname, rcom):
                 n.remove_shutter(shut)
         window.destroy()
         n.printlist()
+        return windll.user32.MessageBoxW(0,"Shutter was succesfully removed", "shutter removed",0)
 
 
 settings = Button(root, text="Settings...", command=lambda: removeShutter())
 settings.place(x=1225, y=400)
 
-# test remove function
+#test remove function
 # n.add_shutter(shutter.shutter('a', 'b', 5))
 # n.add_shutter(shutter.shutter('c', 'b', 6))
 # n.add_shutter(shutter.shutter('g', 'b', 7))
 # n.add_shutter(shutter.shutter('f', 'b', 8))
+
 root.mainloop()
 

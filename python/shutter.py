@@ -6,7 +6,7 @@ class shutter:
         self.name = name
         self.position = position
         self.com = com
-        self.data = requestData.RequestData(self.get_com_data())
+        #self.data = requestData.RequestData(self.get_com_data())
 
     def set_name(self, name2):
         self.name = name2
@@ -55,3 +55,4 @@ class shutter:
 # d.set_name('steve')
 # print(d.get_name())
 # print(d.get_com_data())
+# print(d.get_temp())

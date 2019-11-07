@@ -49,11 +49,13 @@ def addShutter(window, name, position, com):
             for shut in n.get_shutter_list():
                 if name == shut.get_name():
                     return windll.user32.MessageBoxW(0, "This name is already in use please use a diffrent one", "Name already in use", 0)
-                if com == shut.get_com():
+                if int(com) == shut.get_com():
                     return windll.user32.MessageBoxW(0, "This COM port is already in use please use a diffrent one", "COM already in use", 0)
             n.add_shutter(shutter.shutter(name, position, int(com)))
             n.printlist()
             window.destroy()
+            windll.user32.MessageBoxW(0,"shutter " + name + " has been added", "added shutter",0)
+            n.printlist()
         else:
             return windll.user32.MessageBoxW(0, "Please enter a positive number in COM.", "Invalid length", 0)
 
