@@ -137,9 +137,7 @@ void ser_readln(char* buf, int maxlength, uint8_t echo) {
 	int i=0;
 	while(1) {
 		uint8_t c = ser_receive();
-		if (echo) ser_transmit(c);
 		if (c=='\r') {
-			if (echo) ser_transmit('\n');
 			break;
 		}
 		if (i<maxlength-1) {
@@ -150,9 +148,6 @@ void ser_readln(char* buf, int maxlength, uint8_t echo) {
 }
 int ser_read() {
 	uint8_t c = ser_receive();
-	ser_transmit('\r');
-	ser_transmit('\n');
-	ser_transmit(c);
 	return c;
 }
 void showNumber(int value){
