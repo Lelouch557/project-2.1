@@ -22,9 +22,16 @@ class shutter:
     def get_com(self):
         return self.com
 
-d = shutter('dave', 'left', 5)
+    def get_com_data(self):
+        comp = 'COM' + str(self.com)
+        return comp
 
-print(d.get_com())
-print(d.get_name())
-d.set_name('steve')
-print(d.get_name())
+
+# test
+d = shutter('dave', 'left', 5)
+#
+# print(d.get_com())
+# print(d.get_name())
+# d.set_name('steve')
+#
+d.get_com_data()
