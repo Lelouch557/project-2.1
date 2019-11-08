@@ -13,23 +13,29 @@ class RequestData:
             print("Can't open connection")
 
     def encode_string(self, string):
-        ret = (string + "\n\r").encode()
+        ret = (string + "\r").encode()
         return ret
 
     def temp(self):
         self.ser.write(self.encode_string("TEMP"))
+        return self.ser.readline()
 
     def light(self):
         self.ser.write(self.encode_string("LIGHT"))
+        return self.ser.readline()
 
     def distance(self):
         self.ser.write(self.encode_string("DISTANCE"))
+        return self.ser.readline()
 
     def down(self):
         self.ser.write(self.encode_string("DOWN"))
+        return self.ser.readline()
 
     def up(self):
         self.ser.write(self.encode_string("UP"))
+        return self.ser.readline()
 
     def close_connection(self):
         self.ser.close()
+
