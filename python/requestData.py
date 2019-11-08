@@ -9,9 +9,8 @@ class RequestData:
         self.ser.open()
         if(self.ser.isOpen()):
             self.ser.readline()
-            return "ok"
         else:
-            return "Can't open connection"
+            print("Can't open connection")
 
     def encode_string(self, string):
         ret = (string + "\n\r").encode()
