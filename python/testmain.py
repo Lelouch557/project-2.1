@@ -13,7 +13,7 @@ slave_state = True;
 class Plot:
 
     def __init__(self, tag):
-        self.tempd = [10,23,44,12,42,12,2,34,23,24,54,76,45,13,44,68,80,35,34,56,68,79,45,24,45,78,8,68,46,54,45]
+        self.tempd = []
         self.lightd = []
         self.s = 0
         self.max = 100
@@ -25,14 +25,21 @@ class Plot:
         self.color = 'red'
         self.tag = tag
         self.n = network()
+        self.activeTab = 0
 
     def reset_plot(self, canvas):
         self.s = 0
         self.x2 = 50
         canvas.delete(self.tag)
 
+    def itterate_shutters(self):
+        temp = self.n.get_shutter_list()
+        for i in range(len(temp)):
+            temp[i].step()
+
     def main(self, canvas):
         sleep(0.1)
+        self.itterate_shutters()
         self.temp()
         self.bright()
         self.reset_plot(canvas)
@@ -49,13 +56,20 @@ class Plot:
 
     def temp(self):
         temp = self.n.get_shutter_list()
-        if(len(temp) > 0):
-            self.tempd = temp[0].get_temp_array()
+        if self.activeTab == 0:
+            if(len(temp) > 0):
+                self.tempd = temp[0].get_temp_array()
+        else:
+            self.tempd = temp[self.activeTab-1].get_temp_array()
 
     def bright(self):
         temp = self.n.get_shutter_list()
         if(len(temp) > 0):
             self.lightd = temp[0].get_light_array()
+
+    def change_graph_source(self, num):
+        self.tempd = self.n[num].get_temp_array()
+        self.activeTab=num+1
 
     def change_slave_state(self):
         if(self.slave):
@@ -113,6 +127,7 @@ class Plot:
                 self.n.printlist()
                 window.destroy()
                 windll.user32.MessageBoxW(0, "shutter " + name + " has been added", "added shutter", 0)
+                add_tab()
                 self.n.printlist()
             else:
                 return windll.user32.MessageBoxW(0, "Please enter a positive number in COM.", "Invalid length", 0)
@@ -159,6 +174,21 @@ def change_slave_state(button, temp):
         slave_state = True
         button.config(bg="lightgray", foreground="black", text="Automatic")
 
+def change_tab(tabi):
+    for tab in tabs:
+        if tabi == tab:
+            temp_plot.change_graph_state(len(tabs)-2)
+            tab.config(bg="black", foreground="white")
+        else:
+            tab.config(bg="lightgray", foreground="black")
+
+def add_tab():
+    txt = "Tab" + str(len(tabs))
+    tab1 = Button(canvas, text=txt)
+    tab1.config(command=lambda: change_tab(tab1))
+    tabs.append(tab1)
+    xas = 10 + (50 * (len(tabs)))
+    tab1.place(x=xas, y=0)
 
 temp_plot = Plot('temp1')
 
@@ -167,10 +197,8 @@ root.geometry("1200x800")
 root.title('SunShade by HanzeTech')
 slave = True
 
-tab_master = Notebook(root)
-general_tab = Frame(tab_master)
-tab_master.add(general_tab, text="General")
-canvas = Canvas(general_tab, width=1200, height=800, bg='white')  # 0,0 is top left corner
+
+canvas = Canvas(root, width=1200, height=800, bg='white')  # 0,0 is top left corner
 canvas.pack(expand=YES, fill=BOTH)
 settings = Button(canvas, text="Settings...", command=open_settings)
 settings.place(x=800, y=600)
@@ -184,6 +212,12 @@ manual_button = Button(canvas, text="Automatic")
 manual_button.config(command=lambda: change_slave_state(manual_button,temp_plot))
 manual_button.place(x=400, y=650)
 
+general_tab = Button(canvas, text="General")
+general_tab.config(bg="black", foreground="white")
+
+general_tab.config(command=lambda: change_tab(general_tab))
+general_tab.place(x=50,y=0)
+tabs = [general_tab]
 # x-axis
 for i in range(23):
     x = 50 + (i * 50)
@@ -200,7 +234,6 @@ for i in range(11):
 ylabel = Label(canvas, text="Value", fg="black", bg="white")
 ylabel.pack()
 canvas.create_window(25, 25, window=ylabel)
-tab_master.pack(expand=1, fill="both")
 
 # add arduino screen
 
