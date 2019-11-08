@@ -1,4 +1,5 @@
 # deze code komt van https://www.python-course.eu/tkinter_entry_widgets.php
+#deze code wordt niet gebruikt
 import tkinter as tk
 from ctypes import windll
 

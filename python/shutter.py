@@ -1,8 +1,12 @@
+from python import requestData
+
+
 class shutter:
     def __init__(self, name, position, com):
         self.name = name
         self.position = position
         self.com = com
+        #self.data = requestData.RequestData(self.get_com_data())
 
     def set_name(self, name2):
         self.name = name2
@@ -22,9 +26,33 @@ class shutter:
     def get_com(self):
         return self.com
 
-d = shutter('dave', 'left', 5)
+    def get_com_data(self):
+        comp = 'COM' + str(self.com)
+        return comp
 
-print(d.get_com())
-print(d.get_name())
-d.set_name('steve')
-print(d.get_name())
+    def get_temp(self):
+        return self.data.temp()
+
+    def get_light(self):
+        return self.data.light()
+
+    def get_distance(self):
+        return self.data.distance()
+
+    def get_down(self):
+        return self.data.down()
+
+    def get_up(self):
+        return self.data.up()
+
+    def close_port(self):
+        return self.data.close_connection()
+
+# d = shutter('dave', 'left', 5)
+#
+# print(d.get_com())
+# print(d.get_name())
+# d.set_name('steve')
+# print(d.get_name())
+# print(d.get_com_data())
+# print(d.get_temp())

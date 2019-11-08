@@ -1,6 +1,7 @@
 import tkinter as tk
 from tkinter import simpledialog
 
+#this code is not in use
 ROOT = tk.Tk()
 
 ROOT.withdraw()
