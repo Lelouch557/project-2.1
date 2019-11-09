@@ -30,6 +30,8 @@ def removeShutterProces(window, rname, rcom):
     for char in rcom:
         if char in ascii_letters or char in whitespace or int(rcom) < 0:
             return windll.user32.MessageBoxW(0, "Please enter a valid number in COM", "Invalid COM", 0)
+    if len(n.get_shutter_list()) == 0:
+        return windll.user32.MessageBoxW(0,"There are currently no shutters available in the network", "No shutters found",0)
     if rcom == "" and rname == "":
         return windll.user32.MessageBoxW(0, "Please enter a COM or name", "COM and name field is empty", 0)
     if rcom != "" and rname != "":
