@@ -202,7 +202,7 @@ def add_to_tab(tab, plot):
     ylabel.pack()
     canvas.create_window(25, 25, window=ylabel)
     canvas.after(300, plot.main, canvas)
-
+# add shutter
 def addShutter(window, name, position, com):
     for char in name:
         if char not in ascii_letters:
