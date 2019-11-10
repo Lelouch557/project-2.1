@@ -3,11 +3,11 @@ from tkinter import *
 from ctypes import windll
 
 import serial
-
-from python import network, shutter
+from network import network
+from shutter import shutter
 
 root = Tk()
-n = network.network()
+n = network()
 
 def addShutterSettings():
     shutter = Tk()

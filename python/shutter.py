@@ -3,7 +3,7 @@ from time import sleep
 import requestData
 #updated
 
-class shutter:
+class Shutter:
     def __init__(self, name, position, com):
         self.name = name
         self.position = position
