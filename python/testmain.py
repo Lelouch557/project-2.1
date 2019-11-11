@@ -5,6 +5,7 @@ from string import *
 from tkinter import *
 from ctypes import windll
 import network, shutter
+import serial
 from serial import *
 
 from network import network
@@ -144,7 +145,11 @@ class Plot:
                     if int(com) == shut.get_com():
                         return windll.user32.MessageBoxW(0, "This COM port is already in use please use a diffrent one",
                                                          "COM already in use", 0)
-                self.n.add_shutter(shutter.shutter(name, position, int(com)))
+                try:
+                    self.n.add_shutter(shutter.shutter(name, position, int(com)))
+                except serial.serialutil.SerialException:
+                    return windll.user32.MessageBoxW(0, "No shutter is connected to this COM port",
+                                                     "No shutter connected", 0)
                 self.n.printlist()
                 window.destroy()
                 windll.user32.MessageBoxW(0, "shutter " + name + " has been added", "added shutter", 0)
