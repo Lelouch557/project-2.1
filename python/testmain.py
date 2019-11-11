@@ -46,6 +46,7 @@ class Plot:
         self.temp()
         self.bright()
         self.calc_gem_temp()
+        self.calc_gem_light()
         self.reset_plot(canvas)
         if self.tl:
             for i in range(len(self.tempd) - 1 ):
@@ -76,8 +77,8 @@ class Plot:
         self.gem_temp = []
         a4 = self.n.get_shutter_list()
         participated = []
-        for i,array_list in enumerate(a4):
-            if i==0:
+        for i, array_list in enumerate(a4):
+            if i == 0:
                 for j, val in enumerate(a4[0].get_temp_array()):
                     self.gem_temp.append(val)
                     participated.append(1)
@@ -85,15 +86,33 @@ class Plot:
                 array = array_list.get_temp_array()
                 for placevalue in range(len(array)):
                     if i == 1:
-                        print(len(self.gem_temp) - 1 - (len(array) - 1 -placevalue))
-                    self.gem_temp[len(self.gem_temp) - 1 - (len(array) - 1 -placevalue)] += array[placevalue]
-                    participated[len(self.gem_temp) - 1 - (len(array) - 1 -placevalue)] = participated[len(self.gem_temp) - 1 - (len(array) - 1 -placevalue)] + 1
+                        print(len(self.gem_temp) - 1 - (len(array) - 1 - placevalue))
+                    self.gem_temp[len(self.gem_temp) - 1 - (len(array) - 1 - placevalue)] += array[placevalue]
+                    participated[len(self.gem_temp) - 1 - (len(array) - 1 - placevalue)] = participated[len(
+                        self.gem_temp) - 1 - (len(array) - 1 - placevalue)] + 1
 
         for i in range(len(participated)):
-            print(i)
-            print(self.gem_temp)
-            print(participated)
             self.gem_temp[i] = self.gem_temp[i] / participated[i]
+
+    def calc_gem_light(self):
+        self.gem_light = []
+        a4 = self.n.get_shutter_list()
+        participated = []
+        for i,array_list in enumerate(a4):
+            if i==0:
+                for j, val in enumerate(a4[0].get_light_array()):
+                    self.gem_light.append(val)
+                    participated.append(1)
+            else:
+                array = array_list.get_light_array()
+                for placevalue in range(len(array)):
+                    if i == 1:
+                        print(len(self.gem_light) - 1 - (len(array) - 1 -placevalue))
+                    self.gem_light[len(self.gem_light) - 1 - (len(array) - 1 -placevalue)] += array[placevalue]
+                    participated[len(self.gem_light) - 1 - (len(array) - 1 -placevalue)] = participated[len(self.gem_light) - 1 - (len(array) - 1 -placevalue)] + 1
+
+        for i in range(len(participated)):
+            self.gem_light[i] = self.gem_light[i] / participated[i]
 
     def temp(self):
         temp = self.n.get_shutter_list()
@@ -105,8 +124,7 @@ class Plot:
     def bright(self):
         temp = self.n.get_shutter_list()
         if self.activeTab == 0:
-            if(len(temp) > 0):
-                self.lightd = temp[0].get_light_array()
+            self.lightd = self.gem_light
         else:
             self.lightd = temp[self.activeTab-1].get_light_array()
 

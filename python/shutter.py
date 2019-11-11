@@ -85,7 +85,6 @@ class shutter:
         self.temp_data.append(int(t))
         t = int(self.get_light())
         t = t/10
-        print(t)
         self.light_data.append(t)
 
 #
