@@ -4,19 +4,19 @@ from random import randint
 from string import *
 from tkinter import *
 from ctypes import windll
+
 import network, shutter
 from serial import *
 
 from network import network
+from serial import *
 
-slave_state = True;
+slave_state = True
 class Plot:
 
     def __init__(self, tag):
-        self.tempd = []
-        self.gem_temp = []
+        self.tempd = [10,23,44,12,42,12,2,34,23,24,54,76,45,13,44,68,80,35,34,56,68,79,45,24,45,78,8,68,46,54,45]
         self.lightd = []
-        self.gem_light = []
         self.s = 0
         self.max = 100
         self.min = 0
@@ -26,8 +26,8 @@ class Plot:
         self.tl = True # termperature of brightness. True == temperature
         self.color = 'red'
         self.tag = tag
+        self.canvases = []
         self.n = network()
-        self.activeTab = 0
 
     def reset_plot(self, canvas):
         self.s = 0
@@ -39,7 +39,14 @@ class Plot:
         for i in range(len(temp)):
             temp[i].step()
 
-    def main(self, canvas):
+    def add_canvas(self, canvas):
+        self.canvases.append(canvas)
+
+    def main(self):
+        for c in self.canvases:
+            self.step(c)
+
+    def step(self, canvas):
         sleep(0.1)
         self.itterate_shutters()
         self.temp()
@@ -53,40 +60,18 @@ class Plot:
             for i in range(len(self.lightd) - 1 ):
                 if i < 23:
                     self.graph(self.lightd)
-        self.s=0
-
-        canvas.after(300, self.main, canvas)
-
-    def calc_gem_temp(self):
-        temp = []
-        list = self.n.get_shutter_list()
-        for i, n in enumerate(list):
-            print(i)
-            if(i==0):
-                temp = n.get_temp_array()
-            else:
-                for j, val in enumerate(n.get_temp_array()):
-                    temp[j] = temp[j] + val
-        self.gem_temp = temp
-        print(self.gem_temp)
+        self.s=0;
+        canvas.after(300, self.main)
 
     def temp(self):
         temp = self.n.get_shutter_list()
-        if self.activeTab == 0:
-            self.tempd = self.gem_temp
-        else:
-            self.tempd = temp[self.activeTab-1].get_temp_array()
+        if(len(temp) > 0):
+            self.tempd = temp[0].get_temp_array()
 
     def bright(self):
         temp = self.n.get_shutter_list()
-        if self.activeTab == 0:
-            if(len(temp) > 0):
-                self.lightd = temp[0].get_light_array()
-        else:
-            self.lightd = temp[self.activeTab-1].get_light_array()
-
-    def change_graph_source(self, num):
-        self.activeTab=num
+        if(len(temp) > 0):
+            self.lightd = temp[0].get_light_array()
 
     def change_slave_state(self):
         if(self.slave):
@@ -95,7 +80,7 @@ class Plot:
             self.slave = True
 
     def change_graph_state(self, bool):
-        self.tl = bool
+        self.tl = bool;
         if(self.tl):
             self.color = "red"
         else:
@@ -144,7 +129,6 @@ class Plot:
                 self.n.printlist()
                 window.destroy()
                 windll.user32.MessageBoxW(0, "shutter " + name + " has been added", "added shutter", 0)
-                add_tab()
                 self.n.printlist()
             else:
                 return windll.user32.MessageBoxW(0, "Please enter a positive number in COM.", "Invalid length", 0)
@@ -191,93 +175,107 @@ def change_slave_state(button, temp):
         slave_state = True
         button.config(bg="lightgray", foreground="black", text="Automatic")
 
-def change_tab(tabi):
-    for i, tab in enumerate(tabs):
-        if tabi == tab:
-            temp_plot.change_graph_source(i)
-            tab.config(bg="black", foreground="white")
-        else:
-            tab.config(bg="lightgray", foreground="black")
 
-def add_tab():
-    txt = "Tab" + str(len(tabs))
-    tab1 = Button(canvas, text=txt)
-    tab1.config(command=lambda: change_tab(tab1))
-    tabs.append(tab1)
-    xas = 10 + (50 * (len(tabs)))
-    tab1.place(x=xas, y=0)
 
-temp_plot = Plot('temp1')
+
+
 
 root = Tk()
 root.geometry("1200x800")
 root.title('SunShade by HanzeTech')
-slave = True
+
+tab_master = Notebook(root)
+general_tab = Frame(tab_master)
+tab1 = Frame(tab_master)
+tab2 = Frame(tab_master)
+tab3 = Frame(tab_master)
+tab4 = Frame(tab_master)
+tab_master.add(general_tab, text="General")
+tab_master.add(tab1, text="COM1")
+tab_master.add(tab2, text="COM2")
+tab_master.add(tab3, text="COM3")
+tab_master.add(tab4, text="COM4")
+tabs = [general_tab, tab1, tab2, tab3, tab4]
+print(tab_master.keys())
+
+temp_plot = Plot('temp1')
 
 
-canvas = Canvas(root, width=1200, height=800, bg='white')  # 0,0 is top left corner
-canvas.pack(expand=YES, fill=BOTH)
-settings = Button(canvas, text="Settings...", command=open_settings)
-settings.place(x=800, y=600)
-
-canvas.create_line(50, 550, 1150, 550, width=2)  # x-axis
-canvas.create_line(50, 550, 50, 50, width=2)  # y-axis
-
-temp_button = Button(canvas, text="Show Temperature", command=lambda: temp_plot.change_graph_state(True)).place(x=400, y=600)
-bright_button = Button(canvas, text="Show Brightness", command=lambda: temp_plot.change_graph_state(False)).place(x=600, y=600)
-manual_button = Button(canvas, text="Automatic")
-manual_button.config(command=lambda: change_slave_state(manual_button,temp_plot))
-manual_button.place(x=400, y=650)
-
-general_tab = Button(canvas, text="General")
-general_tab.config(bg="black", foreground="white")
-
-general_tab.config(command=lambda: change_tab(general_tab))
-general_tab.place(x=50,y=0)
-tabs = [general_tab]
-# x-axis
-for i in range(23):
-    x = 50 + (i * 50)
-    canvas.create_line(x, 550, x, 50, width=1, dash=(2, 5))
-    canvas.create_text(x, 550, text='%d' % (10 * i), anchor=N)
-xlabel = Label(canvas, text="Step", fg='black', bg='white')
-xlabel.pack()
-canvas.create_window(1150, 575, window=xlabel)
-# y-axis
-for i in range(11):
-    y = 550 - (i * 50)
-    canvas.create_line(50, y, 1150, y, width=1, dash=(2, 5))
-    canvas.create_text(40, y, text='%d' % (10 * i), anchor=E)
-ylabel = Label(canvas, text="Value", fg="black", bg="white")
-ylabel.pack()
-canvas.create_window(25, 25, window=ylabel)
-
-# add arduino screen
-
-def addShutterSettings():
-    shutter = Tk()
-    shutter.geometry("500x300")
-    shutter.title("Add shutter")
-    shutter_name = Label(shutter, text="shutter name")
-    shutter_position = Label(shutter, text="description of the shutter position")
-    shutter_com = Label(shutter, text="enter the number of the COM port")
-    shutter_name_entry = Entry(shutter)
-    shutter_position_entry = Entry(shutter)
-    shutter_com_entry = Entry(shutter)
-    shutter_name.pack()
-    shutter_name_entry.pack()
-    shutter_position.pack()
-    shutter_position_entry.pack()
-    shutter_com.pack()
-    shutter_com_entry.pack()
-    Button(shutter, text="add shutter",
-           command=lambda: temp_plot.addShutter(shutter, shutter_name_entry.get(), shutter_position_entry.get(),
-                                      shutter_com_entry.get())).pack()
-
-add_shut = Button(canvas, text="Add Shutter", command=lambda: addShutterSettings())
-add_shut.place(x=825, y=650)
+for tabnum, tab in enumerate(tabs):
+    def change_slave_state(button):
+        global slave_state
+        if slave_state:
+            slave_state = False
+            button.config(bg="black", foreground="white", text="Manual")
+        else:
+            slave_state = True
+            button.config(bg="lightgray", foreground="black", text="Automatic")
 
 
-canvas.after(300, temp_plot.main, canvas)
+
+
+    slave = True
+    canvas = Canvas(tab, width=1200, height=800, bg='white')  # 0,0 is top left corner
+    canvas.pack(expand=YES, fill=BOTH)
+    settings = Button(canvas, text="Settings...", command=open_settings)
+    settings.place(x=800, y=600)
+
+    canvas.create_line(50, 550, 1150, 550, width=2)  # x-axis
+    canvas.create_line(50, 550, 50, 50, width=2)  # y-axis
+
+    temp_button = Button(canvas, text="Show Temperature", command=lambda: temp_plot.change_graph_state(True)).place(
+        x=400, y=600)
+    bright_button = Button(canvas, text="Show Brightness", command=lambda: temp_plot.change_graph_state(False)).place(
+        x=600, y=600)
+    manual_button = Button(canvas, text="Automatic")
+    manual_button.config(command=lambda: change_slave_state(manual_button, temp_plot))
+    manual_button.place(x=400, y=650)
+
+    # x-axis
+    for i in range(23):
+        x = 50 + (i * 50)
+        canvas.create_line(x, 550, x, 50, width=1, dash=(2, 5))
+        canvas.create_text(x, 550, text='%d' % (10 * i), anchor=N)
+    xlabel = Label(canvas, text="Step", fg='black', bg='white')
+    xlabel.pack()
+    canvas.create_window(1150, 575, window=xlabel)
+    # y-axis
+    for i in range(11):
+        y = 550 - (i * 50)
+        canvas.create_line(50, y, 1150, y, width=1, dash=(2, 5))
+        canvas.create_text(40, y, text='%d' % (10 * i), anchor=E)
+    ylabel = Label(canvas, text="Value", fg="black", bg="white")
+    ylabel.pack()
+    canvas.create_window(25, 25, window=ylabel)
+    tab_master.pack(expand=1, fill="both")
+
+    temp_plot.add_canvas(canvas)
+    print(tabnum)
+    if(tabnum==0):
+
+        def addShutterSettings():
+            shutter = Tk()
+            shutter.geometry("500x300")
+            shutter.title("Add shutter")
+            shutter_name = Label(shutter, text="shutter name")
+            shutter_position = Label(shutter, text="description of the shutter position")
+            shutter_com = Label(shutter, text="enter the number of the COM port")
+            shutter_name_entry = Entry(shutter)
+            shutter_position_entry = Entry(shutter)
+            shutter_com_entry = Entry(shutter)
+            shutter_name.pack()
+            shutter_name_entry.pack()
+            shutter_position.pack()
+            shutter_position_entry.pack()
+            shutter_com.pack()
+            shutter_com_entry.pack()
+            Button(shutter, text="add shutter",
+                   command=lambda: temp_plot.addShutter(shutter, shutter_name_entry.get(), shutter_position_entry.get(),
+                                                        shutter_com_entry.get())).pack()
+
+        add_shut = Button(canvas, text="Add Shutter", command=lambda: addShutterSettings())
+        add_shut.place(x=825, y=650)
+
+canvas.after(300, temp_plot.step, canvas)
 
 root.mainloop()
