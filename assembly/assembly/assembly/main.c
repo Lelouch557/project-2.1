@@ -103,7 +103,7 @@ void down(){
 	if(stateofscreen == 0){
 		stateofscreen = 1;
 		counter = getDistance();
-		while(counter > 10){
+		while(counter < 20){
 			if(bool == 1){
 				bool=0;
 				PORTB = green;
