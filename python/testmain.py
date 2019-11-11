@@ -44,8 +44,8 @@ class Plot:
         sleep(0.1)
         self.itterate_shutters()
         self.temp()
-        #self.calc_gem_temp()
         self.bright()
+        self.calc_gem_temp()
         self.reset_plot(canvas)
         if self.tl:
             for i in range(len(self.tempd) - 1 ):
@@ -59,21 +59,41 @@ class Plot:
 
         canvas.after(300, self.main, canvas)
 
-    def calc_gem_temp(self):
-        temp = []
-        list = self.n.get_shutter_list()
-        for i, n in enumerate(list):
-            print(i)
-            if(i==0):
-                temp = n.get_temp_array()
-            else:
-                for l in range(len(n.get_temp_array())):
-                    temp[(len(temp) - l - 1)] = temp[(len(temp) - l - 1)] + n.get_temp_array()[(len(n.get_temp_array )- l - 1)]
+    def up(self, upbutton, downbutton):
+        downbutton.config(bg="lightgray", foreground="black")
+        upbutton.config(bg="black", foreground="white")
+        for shut in self.n.get_shutter_list():
+            shut.get_up()
 
-        for i, val in enumerate(temp):
-            temp[i] = temp[i] / len(list)
-        self.gem_temp = temp
-        print(self.gem_temp)
+
+    def down(self, upbutton, downbutton):
+        downbutton.config(bg="black", foreground="white")
+        upbutton.config(bg="lightgray", foreground="black")
+        for shut in self.n.get_shutter_list():
+            shut.get_down()
+
+    def calc_gem_temp(self):
+        self.gem_temp = []
+        a4 = self.n.get_shutter_list()
+        participated = []
+        for i,array_list in enumerate(a4):
+            if i==0:
+                for j, val in enumerate(a4[0].get_temp_array()):
+                    self.gem_temp.append(val)
+                    participated.append(1)
+            else:
+                array = array_list.get_temp_array()
+                for placevalue in range(len(array)):
+                    if i == 1:
+                        print(len(self.gem_temp) - 1 - (len(array) - 1 -placevalue))
+                    self.gem_temp[len(self.gem_temp) - 1 - (len(array) - 1 -placevalue)] += array[placevalue]
+                    participated[len(self.gem_temp) - 1 - (len(array) - 1 -placevalue)] = participated[len(self.gem_temp) - 1 - (len(array) - 1 -placevalue)] + 1
+
+        for i in range(len(participated)):
+            print(i)
+            print(self.gem_temp)
+            print(participated)
+            self.gem_temp[i] = self.gem_temp[i] / participated[i]
 
     def temp(self):
         temp = self.n.get_shutter_list()
@@ -153,10 +173,61 @@ class Plot:
                 self.n.printlist()
                 window.destroy()
                 windll.user32.MessageBoxW(0, "shutter " + name + " has been added", "added shutter", 0)
-                add_tab()
+                add_tab(name)
                 self.n.printlist()
             else:
                 return windll.user32.MessageBoxW(0, "Please enter a positive number in COM.", "Invalid length", 0)
+
+    def removeShutter(self):
+        shutter = Tk()
+        shutter.geometry("500x300")
+        shutter.title("Remove shutter")
+        shutter_name = Label(shutter, text="shutter name")
+        shutter_com = Label(shutter, text="enter the number of the COM port")
+        shutter_name_entry = Entry(shutter)
+        shutter_com_entry = Entry(shutter)
+        shutter_name.pack()
+        shutter_name_entry.pack()
+        shutter_com.pack()
+        shutter_com_entry.pack()
+        Button(shutter, text="remove shutter",
+               command=lambda: self.removeShutterProces(shutter, shutter_name_entry.get(),
+                                                   shutter_com_entry.get())).pack()
+
+    def removeShutterProces(self, window, rname, rcom):
+        for char in rname:
+            if char not in ascii_letters:
+                return windll.user32.MessageBoxW(0, "Please only use letters in the name", "Invalid name", 0)
+        for char in rcom:
+            if char in ascii_letters or char in whitespace or int(rcom) < 0:
+                return windll.user32.MessageBoxW(0, "Please enter a valid number in COM", "Invalid COM", 0)
+        if len(self.n.get_shutter_list()) == 0:
+            return windll.user32.MessageBoxW(0, "There are currently no shutters available in the network",
+                                             "No shutters found", 0)
+        if rcom == "" and rname == "":
+            return windll.user32.MessageBoxW(0, "Please enter a COM or name", "COM and name field is empty", 0)
+        if rcom != "" and rname != "":
+            return windll.user32.MessageBoxW(0, "Please only fill in one of the fields",
+                                             "COM and name field are both filled in", 0)
+        if rname not in self.n.get_shutter_name_list() and rcom == "":
+            return windll.user32.MessageBoxW(0, "This shutter doesn't exist please check again and resubmit",
+                                             "This shutter doesn't exist", 0)
+        if rcom not in str(self.n.get_shutter_com_list()):
+            print(self.n.get_shutter_com_list())
+            return windll.user32.MessageBoxW(0, "This shutter doesn't exist please check again and resubmit",
+                                             "This shutter doesn't exist", 0)
+        else:
+            print(self.n.get_shutter_list())
+            for shut in self.n.get_shutter_list():
+                if rname == shut.get_name():
+                    self.n.remove_shutter(shut)
+                if rcom != "" and rname == "":
+                    if int(rcom) == shut.get_com():
+                        self.n.remove_shutter(shut)
+            remove_tab()
+            window.destroy()
+            self.n.printlist()
+            return windll.user32.MessageBoxW(0, "Shutter was succesfully removed", "shutter removed", 0)
 
 
 max_length = 150
@@ -207,14 +278,17 @@ def change_tab(tabi):
             tab.config(bg="black", foreground="white")
         else:
             tab.config(bg="lightgray", foreground="black")
-
-def add_tab():
-    txt = "Tab" + str(len(tabs))
-    tab1 = Button(canvas, text=txt)
+def add_tab(name):
+    tab1 = Button(canvas, text=name)
     tab1.config(command=lambda: change_tab(tab1))
     tabs.append(tab1)
     xas = 10 + (50 * (len(tabs)))
     tab1.place(x=xas, y=0)
+
+def remove_tab():
+    print(tabs)
+    tabs[len(tabs)-1].destroy()
+    tabs.remove(tabs[len(tabs)-1])
 
 temp_plot = Plot('temp1')
 
@@ -234,9 +308,15 @@ canvas.create_line(50, 550, 50, 50, width=2)  # y-axis
 
 temp_button = Button(canvas, text="Show Temperature", command=lambda: temp_plot.change_graph_state(True)).place(x=400, y=600)
 bright_button = Button(canvas, text="Show Brightness", command=lambda: temp_plot.change_graph_state(False)).place(x=600, y=600)
-manual_button = Button(canvas, text="Automatic")
-manual_button.config(command=lambda: change_slave_state(manual_button,temp_plot))
-manual_button.place(x=400, y=650)
+
+up = Button(canvas, text="up")
+up.config(command=lambda: temp_plot.up(up, down))
+up.place(x=600, y=650)
+down = Button(canvas, text="down")
+down.config(command=lambda: temp_plot.down(up, down))
+down.place(x=650, y=650)
+down.config(bg="lightgray", foreground="black")
+up.config(bg="black", foreground="white")
 
 general_tab = Button(canvas, text="General")
 general_tab.config(bg="black", foreground="white")
@@ -286,6 +366,10 @@ def addShutterSettings():
 add_shut = Button(canvas, text="Add Shutter", command=lambda: addShutterSettings())
 add_shut.place(x=825, y=650)
 
+
+
+remove_shut = Button(canvas, text="remove shutter", command=lambda: temp_plot.removeShutter())
+remove_shut.place(x=825, y=680)
 
 canvas.after(300, temp_plot.main, canvas)
 
