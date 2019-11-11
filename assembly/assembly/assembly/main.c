@@ -6,6 +6,7 @@
 #include <stdlib.h>
 #include <string.h>
 #include <avr/interrupt.h>
+#include "AVR_TTC_scheduler.c"
 
 // output on USB = PD1 = board pin 1
 // datasheet p.190; F_OSC = 16 MHz & baud rate = 19.200
@@ -15,9 +16,10 @@ int stateofscreen = 0; // UP state
 static volatile int pulse = 0;
 static volatile int integer = 0;
 static echo_pulse_time = 15;
-static uint8_t red = 0b00010000;
+static uint8_t red = 0b00000100;
 static uint8_t yellow = 0b00001000;
-static uint8_t green = 0b00000100;
+static uint8_t green = 0b00010000;
+int automatic_state = 1;
 
 
 
@@ -78,11 +80,11 @@ void ser_transmit(uint8_t data) {
 	UDR0 = data;
 }
 void up(){
-	int temp = time_to_go_up_or_down * 20;
+	int amount_of_sec = time_to_go_up_or_down * 20;
 	int bool = 1, counter = 0;
 	if(stateofscreen == 1){
 		stateofscreen = 0;
-		while(counter < temp){
+		while(counter < amount_of_sec){
 			if(bool == 1){
 				bool=0;
 				PORTB = red;
@@ -97,11 +99,11 @@ void up(){
 	}
 }
 void down(){
-	int amount_of_sec = time_to_go_up_or_down * 20;
 	int bool = 1, counter = 0;
 	if(stateofscreen == 0){
 		stateofscreen = 1;
-		while(counter < amount_of_sec){
+		counter = getDistance();
+		while(counter > 10){
 			if(bool == 1){
 				bool=0;
 				PORTB = green;
@@ -109,7 +111,7 @@ void down(){
 				bool=1;
 				PORTB = green + yellow;
 			}
-			counter++;
+			counter = getDistance();
 			_delay_ms(500);
 		}
 		PORTB = green;
@@ -155,59 +157,80 @@ void showNumber(int value){
 	sprintf(str_buf,"%d", value);
 	ser_write(str_buf);
 }
+int16_t getDistance(){
+	int16_t count=0;
+	uint8_t temp = PORTB;
+	sei();
+	PORTB |= 0b000000010;
+	_delay_us(echo_pulse_time);
+	PORTB = temp;
+	_delay_ms(100);
+	cli();
+	count = pulse/1000;
+	return count;
+}
+double get_Temp(){
+	double ADCvalue = readADC(3);
+	
+	double temp = (double)ADCvalue / 1024;   //find percentage of input reading
+	temp = temp * 5;                     //multiply by 5V to get voltage
+	temp = temp - 0.5;                   //Subtract the offset
+	temp = temp * 100;
+	return temp;
+}
+
+double get_light(){
+	double ADCvalue = readADC(1);
+	
+	double temp = (double)ADCvalue / 1024;   //find percentage of input reading
+	temp = temp * 5;                     //multiply by 5V to get voltage
+	temp = temp * 100;
+	return temp;
+}
+void loop(){
+	char in_buf[30];
+	int16_t count = 0;
+	ser_readln(in_buf, sizeof(in_buf), 1);
+	_delay_ms(50);
+	
+	if(strcmp(in_buf,"LIGHT") == 0){
+		//LICHTSENSEOR
+		showNumber(get_light());
+	}
+
+	if(strcmp(in_buf,"TEMP") == 0){
+		showNumber(get_Temp());
+	}
+	
+	if(strcmp(in_buf,"DISTANCE") == 0){
+		count = getDistance();
+		showNumber(count);
+	}
+	
+	if(strcmp(in_buf,"DOWN") == 0){
+		down();
+	}
+	if(strcmp(in_buf,"UP") == 0){
+		up();
+	}
+	ser_writeln("OK");
+}
+
 int main() {
 	setup_timer();
 	ser_init();
 
-	char in_buf[30];
 	DDRD = 0b11111011;
 	DDRB = 0xff;
 	PORTB = red;
-	int16_t count = 0;
 	
 	ser_writeln("SETUP DONE.");
 	
+	SCH_Init_T1();
+	SCH_Add_Task(loop, 0, 1);
+	SCH_Start();
 	while (1) {
-		ser_readln(in_buf, sizeof(in_buf), 1);
-		_delay_ms(50);
-		if(strcmp(in_buf,"LIGHT") == 0){
-			//LICHTSENSEOR
-			int ADCvalue = readADC(1);
-			showNumber(ADCvalue);
-		}
-
-		if(strcmp(in_buf,"TEMP") == 0){
-			int ADCvalue = readADC(3);
-			
-			float voltage = ADCvalue * 5.0;
-			voltage /= 1024.0;
-			
-			int v = ((voltage - 0.5) * 100)/ 10;
-			showNumber(v);
-			ser_writeln("");
-			showNumber(ADCvalue * 5.0);
-		}
-		
-		if(strcmp(in_buf,"DISTANCE") == 0){
-			uint8_t temp = PORTB;
-			sei();
-			PORTB |= 0b000000010;
-			_delay_us(echo_pulse_time);
-			PORTB = temp;
-			_delay_ms(100);
-			cli();
-			count = pulse/1000;
-			showNumber(count);
-		}
-		
-		if(strcmp(in_buf,"DOWN") == 0){
-			down();
-		}
-		if(strcmp(in_buf,"UP") == 0){
-			up();
-		}
-		
-		ser_writeln("OK");
+		SCH_Dispatch_Tasks();
 	}
 }
 

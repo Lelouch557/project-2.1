@@ -43,6 +43,7 @@ class Plot:
         sleep(0.1)
         self.itterate_shutters()
         self.temp()
+        #self.calc_gem_temp()
         self.bright()
         self.reset_plot(canvas)
         if self.tl:
@@ -65,8 +66,11 @@ class Plot:
             if(i==0):
                 temp = n.get_temp_array()
             else:
-                for j, val in enumerate(n.get_temp_array()):
-                    temp[j] = temp[j] + val
+                for l in range(len(n.get_temp_array())):
+                    temp[(len(temp) - l - 1)] = temp[(len(temp) - l - 1)] + n.get_temp_array()[(len(n.get_temp_array )- l - 1)]
+
+        for i, val in enumerate(temp):
+            temp[i] = temp[i] / len(list)
         self.gem_temp = temp
         print(self.gem_temp)
 
